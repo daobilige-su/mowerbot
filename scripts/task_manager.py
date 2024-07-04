@@ -23,7 +23,6 @@ from tf import transformations
 
 class TaskManager:
     def __init__(self):
-        # self.sub = rospy.Subscriber("chatter", String, self.callback)
         self.task_list = None  # np.zeros((20, 10))
         self.no_more_task_warned = 0
         self.task_sleep_rate = rospy.Rate(10)
@@ -36,12 +35,10 @@ class TaskManager:
         # move_base and track_line clients
         self.move_base_client = actionlib.SimpleActionClient('move_base', move_base_msgs.msg.MoveBaseAction)
         self.simple_move_base_client = actionlib.SimpleActionClient('simple_move_base', move_base_msgs.msg.MoveBaseAction)
-        self.line_track_client = actionlib.SimpleActionClient('line_track', patrol_robot.msg.line_trackAction)
         self.move_base_client.wait_for_server()
         rospy.loginfo('move_base_server connected.')
         self.simple_move_base_client.wait_for_server()
         rospy.loginfo('simple_move_base_server connected.')
-        self.line_track_client.wait_for_server()
         rospy.loginfo('line_track_server connected.')
 
         # ready to start
@@ -58,7 +55,7 @@ class TaskManager:
 
         self.move_base_client.cancel_all_goals()
         self.simple_move_base_client.cancel_all_goals()
-        self.line_track_client.cancel_all_goals()
+        # self.line_track_client.cancel_all_goals()
 
         # rospy.sleep(0.5)
         self.stop()
@@ -84,12 +81,12 @@ class TaskManager:
             if task_list_cur[0]==0: # stop mode, [0, ...]
                 self.move_base_client.cancel_all_goals()
                 self.simple_move_base_client.cancel_all_goals()
-                self.line_track_client.cancel_all_goals()
+                # self.line_track_client.cancel_all_goals()
                 # publish all zero velocity cmd
                 self.stop()
             elif task_list_cur[0]==1: # move_base mode, [1, x, y, theta, ck_pt ...]
                 goal_pose = task_list_cur[1:4].copy()
-                self.move_base_action(goal_pose)
+                # self.move_base_action(goal_pose)
                 if task_list_cur[4]==1:
                     self.simple_move_base_action(goal_pose)
             elif task_list_cur[0]==2: # track_line mode, [2, dir, ...]
@@ -167,10 +164,10 @@ class TaskManager:
         goal = patrol_robot.msg.line_trackGoal()
         goal.target_location = [int(move_dir)]
 
-        self.line_track_client.send_goal(goal)
+        # self.line_track_client.send_goal(goal)
         rospy.logerr('line_track_client: sent new goal (%f)' % (goal.target_location[0]))
 
-        self.line_track_client.wait_for_result()
+        # self.line_track_client.wait_for_result()
         rospy.logerr("line_track_client: goal completed")
 
     def stop(self):
