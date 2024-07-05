@@ -81,9 +81,10 @@ class TaskManager:
                 self.stop()
             elif task_list_cur[0]==1: # move_base mode, [1, x, y, theta, ck_pt ...]
                 goal_pose = task_list_cur[1:4].copy()
-                self.move_base_action(goal_pose)
-                if task_list_cur[4]==1:
-                    self.simple_move_base_action(goal_pose)
+                self.simple_move_base_action(goal_pose)
+                # self.move_base_action(goal_pose)
+                # if task_list_cur[4]==1:
+                #     self.simple_move_base_action(goal_pose)
             elif task_list_cur[0]==2: # simple_move_base mode, [1, x, y, theta, ck_pt ...]
                 goal_pose = task_list_cur[1:4].copy()
                 self.simple_move_base_action(goal_pose)

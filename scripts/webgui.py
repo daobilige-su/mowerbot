@@ -10,7 +10,6 @@ import rospy
 import rospkg
 from geometry_msgs.msg import Twist
 import numpy as np
-np.bool = np.bool_
 import yaml
 
 from patrol_robot.srv import *
@@ -185,6 +184,10 @@ class WebUI:
         self.thr.start()
 
         ui.run(title='Patrol Robot Web GUI', reload=False, show=False)
+
+    def __del__(self):
+        self.thr.join()
+        pass
 
     def map_mouse_handler(self, e: MouseEventArguments):
         # color = 'SkyBlue' if e.type == 'mousedown' else 'SteelBlue'
@@ -424,7 +427,7 @@ class WebUI:
         row = await self.aggrid.get_selected_row()
         if row:
             row_idx = row['index']-1
-            self.task_list[row_idx, :] = np.array([2, self.movebase_input_x.value, self.movebase_input_y.value,
+            self.task_list[row_idx, :] = np.array([1, self.movebase_input_x.value, self.movebase_input_y.value,
                                                    self.movebase_input_theta.value, float(self.movebase_input_ck_pt.value), 0, 0, 0, 0, 0])
             self.movebase_input_ck_pt.set_value(False)
             self.update_aggrid()

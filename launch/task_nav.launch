@@ -5,7 +5,7 @@
   <param name="simple_move_base_cfgfile" value="$(find mowerbot)/param/simple_move_base_params.yaml" />
 
   <!--   map_server -->
-  <node pkg="map_server" type="map_server" name="map_server" args="$(find mowerbot)/map/map_empty.yaml"/>
+  <node pkg="map_server" type="map_server" name="map_server" args="$(find mowerbot)/map/map_sim.yaml"/>
 
   <!--   task manager, the clients for move base and line track -->
   <node pkg="mowerbot" type="task_manager.py" name="task_manager" output="screen" />
