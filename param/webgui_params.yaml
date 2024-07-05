@@ -1,5 +1,5 @@
 # used in webgui.py
-map: mapv0.2.yaml
+map: map_empty.yaml
 grid_size: 1.0
 map_arrow_len: 0.5
 map_vis_shrink_factor: 2.0

@@ -8,7 +8,7 @@
   <node pkg="map_server" type="map_server" name="map_server" args="$(find mowerbot)/map/map_empty.yaml"/>
 
   <!--   task manager, the clients for move base and line track -->
-<!--   <node pkg="mowerbot" type="task_manager.py" name="task_manager" output="screen" /> -->
+  <node pkg="mowerbot" type="task_manager.py" name="task_manager" output="screen" />
 
   <!--   gps localization -->
   <node pkg="mowerbot" type="gps_loc.py" name="gps_loc" output="screen" />

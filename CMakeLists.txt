@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  gps_common
   message_generation
   message_filters
   tf
@@ -149,13 +150,6 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   map/${PROJECT_NAME}/patrol_robot.cpp
 # )
-#add_library(complementary_filter
-#  include/patrol_robot/complementary_filter.h
-#  include/patrol_robot/complementary_filter_ros.h
-#  src/imu_filter/complementary_filter.cpp
-#  src/imu_filter/complementary_filter_ros.cpp
-#)
-#target_link_libraries(complementary_filter ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -166,12 +160,14 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node map/patrol_robot_node.cpp)
-add_executable(m_sim_to_pc2 src/sim_to_pc2.cpp)
-add_executable(m_pc2_to_laserscan src/pc2_to_laserscan.cpp)
-add_executable(m_complementary_filter_node src/imu_filter/complementary_filter_node.cpp src/imu_filter/complementary_filter.cpp src/imu_filter/complementary_filter_ros.cpp)
-add_executable(m_odom_encoder_node src/odom_encoder.cpp)
-add_executable(m_cmd_vel_serial_node src/cmd_vel_serial.cpp)
-add_executable(m_receive_serial_node src/receive_serial.cpp)
+
+## ahrs_driver
+add_executable(ahrs_driver src/ahrs_driver.cpp)
+target_link_libraries(ahrs_driver crc_table ${catkin_LIBRARIES})# ${SERIAL_LIB}
+add_executable(imu_tf src/imu_tf.cpp)
+target_link_libraries(imu_tf ${catkin_LIBRARIES})# ${SERIAL_LIB}
+## crc_table
+add_library(crc_table src/crc_table.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -187,28 +183,6 @@ add_executable(m_receive_serial_node src/receive_serial.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(m_sim_to_pc2
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(m_pc2_to_laserscan
-  ${catkin_LIBRARIES}
-  ${YAML_CPP_LIBRARIES}
-)
-target_link_libraries(m_complementary_filter_node
-  # complementary_filter
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(m_odom_encoder_node
-  ${catkin_LIBRARIES}
-  ${YAML_CPP_LIBRARIES}
-)
-target_link_libraries(m_cmd_vel_serial_node
-  ${catkin_LIBRARIES}
-  ${YAML_CPP_LIBRARIES}
-)
-target_link_libraries(m_receive_serial_node
-  ${catkin_LIBRARIES}
-)
 
 #############
 ## Install ##
@@ -223,9 +197,6 @@ target_link_libraries(m_receive_serial_node
 #   scripts/my_python_script
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
-#catkin_install_python(PROGRAMS scripts/task_manager.py scripts/task_manager_srv_client.py
-#  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html

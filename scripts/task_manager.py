@@ -35,11 +35,12 @@ class TaskManager:
         # move_base and track_line clients
         self.move_base_client = actionlib.SimpleActionClient('move_base', move_base_msgs.msg.MoveBaseAction)
         self.simple_move_base_client = actionlib.SimpleActionClient('simple_move_base', move_base_msgs.msg.MoveBaseAction)
+        rospy.loginfo('connecting to the move_base_server ...')
         self.move_base_client.wait_for_server()
         rospy.loginfo('move_base_server connected.')
+        rospy.loginfo('connecting to the simple_move_base_server ...')
         self.simple_move_base_client.wait_for_server()
         rospy.loginfo('simple_move_base_server connected.')
-        rospy.loginfo('line_track_server connected.')
 
         # ready to start
         rospy.logwarn('Going to Start after 3s ...')
@@ -55,9 +56,6 @@ class TaskManager:
 
         self.move_base_client.cancel_all_goals()
         self.simple_move_base_client.cancel_all_goals()
-        # self.line_track_client.cancel_all_goals()
-
-        # rospy.sleep(0.5)
         self.stop()
 
         return True
@@ -70,28 +68,25 @@ class TaskManager:
             task_list_cur = self.task_list[0, :].copy()
             rospy.logwarn('Executing task: ')
             rospy.logwarn(task_list_cur)
-    
+
+            # update task_list for the nex iteration
             if task_num==1:
                 self.task_list = None
             else:
-                self.task_list = self.task_list[1:task_num,:].copy()
-            # self.task_list_cur[0:10,:] = self.task_list_cur[1:11,:].copy()
-            # self.task_list_cur[10:11,:] = numpy.zeros((1,10)).copy()
+                self.task_list = self.task_list[1:task_num, :].copy()
     
             if task_list_cur[0]==0: # stop mode, [0, ...]
                 self.move_base_client.cancel_all_goals()
                 self.simple_move_base_client.cancel_all_goals()
-                # self.line_track_client.cancel_all_goals()
-                # publish all zero velocity cmd
                 self.stop()
             elif task_list_cur[0]==1: # move_base mode, [1, x, y, theta, ck_pt ...]
                 goal_pose = task_list_cur[1:4].copy()
-                # self.move_base_action(goal_pose)
+                self.move_base_action(goal_pose)
                 if task_list_cur[4]==1:
                     self.simple_move_base_action(goal_pose)
-            elif task_list_cur[0]==2: # track_line mode, [2, dir, ...]
-                move_dir = task_list_cur[1].copy()
-                self.line_track_action(move_dir)
+            elif task_list_cur[0]==2: # simple_move_base mode, [1, x, y, theta, ck_pt ...]
+                goal_pose = task_list_cur[1:4].copy()
+                self.simple_move_base_action(goal_pose)
             elif task_list_cur[0]==9: # do nothing mode, wait t seconds [9, t, ...]
                 t = task_list_cur[1].copy()
                 rospy.sleep(t)
@@ -105,7 +100,6 @@ class TaskManager:
     def move_base_action(self, pose):
         goal = move_base_msgs.msg.MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
-        # goal.target_pose.pose.orientation.w = 1
 
         # tf.transformations.quaternion_from_euler(ai, aj, ak, axes='sxyz')
         # ai, aj, ak : Euler’s roll, pitch and yaw angles, axes : One of 24 axis sequences as string or encoded tuple
@@ -155,20 +149,6 @@ class TaskManager:
         # Waits for the server to finish performing the action.
         self.simple_move_base_client.wait_for_result()
         rospy.loginfo("simple_move_base_client: goal [%s, %s, %s] completed" % (pose[0], pose[1], pose[2]))
-
-    # move_dir:
-    # 1. move_base task: 0, stay still; 1, move forward; 2, move backward; 3, move left; 4, move right
-    # 5, move forward no jump
-    # 9, turn 180
-    def line_track_action(self, move_dir):
-        goal = patrol_robot.msg.line_trackGoal()
-        goal.target_location = [int(move_dir)]
-
-        # self.line_track_client.send_goal(goal)
-        rospy.logerr('line_track_client: sent new goal (%f)' % (goal.target_location[0]))
-
-        # self.line_track_client.wait_for_result()
-        rospy.logerr("line_track_client: goal completed")
 
     def stop(self):
         msg = Twist()
