@@ -10,6 +10,7 @@ import rospy
 import rospkg
 from geometry_msgs.msg import Twist
 import numpy as np
+np.bool = np.bool_
 import yaml
 
 from patrol_robot.srv import *
@@ -28,7 +29,7 @@ class WebUI:
     def __init__(self):
         # load params
         rospack = rospkg.RosPack()
-        self.pkg_path = rospack.get_path('patrol_robot')+'/'
+        self.pkg_path = rospack.get_path('mowerbot')+'/'
         params_filename = self.pkg_path+'param/'+'webgui_params.yaml'
         with open(params_filename, 'r') as file:
             self.param = yaml.safe_load(file)
@@ -423,7 +424,7 @@ class WebUI:
         row = await self.aggrid.get_selected_row()
         if row:
             row_idx = row['index']-1
-            self.task_list[row_idx, :] = np.array([1, self.movebase_input_x.value, self.movebase_input_y.value,
+            self.task_list[row_idx, :] = np.array([2, self.movebase_input_x.value, self.movebase_input_y.value,
                                                    self.movebase_input_theta.value, float(self.movebase_input_ck_pt.value), 0, 0, 0, 0, 0])
             self.movebase_input_ck_pt.set_value(False)
             self.update_aggrid()
