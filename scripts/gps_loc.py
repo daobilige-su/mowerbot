@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import rospy
+import rospy, rospkg
 import sys
 import tf
 from std_msgs.msg import Float64MultiArray
@@ -8,15 +8,25 @@ from gps_common.msg import GPSFix
 import numpy as np
 from geo_coord_transform import *
 from transform_tools import *
+import yaml
 
 gps_src = 0  # 0: sim, 1: fdi
 
 class gps_localizer:
     def __init__(self):
+        # locate ros pkg
+        rospack = rospkg.RosPack()
+        self.pkg_path = rospack.get_path('mowerbot') + '/'
+        # load key params
+        # params_filename = rospy.get_param('param_file')  # self.pkg_path + 'cfg/' + 'param.yaml'
+        params_filename = self.pkg_path + 'param/' + 'mowerbot_params.yaml'
+        with open(params_filename, 'r') as file:
+            self.param = yaml.safe_load(file)
+
         self.send_rate = rospy.Rate(10)  # send with 10 hz
         self.br = tf.TransformBroadcaster()
 
-        self.lla_ori = np.array([40.0, 117.0, 0.0])
+        self.lla_ori = np.array(self.param['map']['ref_lla'])
         self.sim_gps_sub = rospy.Subscriber('dgps_floatarray', Float64MultiArray, self.sim_gps_cb)
         self.fdi_gps_sub = rospy.Subscriber('/gnss_dual_ant/fix', GPSFix, self.fdi_gps_cb)
 
@@ -29,7 +39,8 @@ class gps_localizer:
                           'laser_link', 'base_link')
 
     def sim_gps_cb(self, msg):
-        if gps_src == 0:
+        # if gps_src == 0:
+        if True:
             data = np.array(msg.data)
             lla = data[0:3]
             track = data[3]
@@ -44,7 +55,8 @@ class gps_localizer:
             self.tf_broadcast(enu, quat, 'base_link', 'map')
 
     def fdi_gps_cb(self, msg):
-        if gps_src == 1:
+        # if gps_src == 1:
+        if True:
             lla = np.array([np.deg2rad(msg.latitude), np.deg2rad(msg.longitude), msg.altitude])
             track = np.deg2rad(msg.track)
             theta = track + np.pi / 2.0

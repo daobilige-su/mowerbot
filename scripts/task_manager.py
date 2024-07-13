@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import numpy
 import numpy as np
-import patrol_robot.msg
+# import mowerbot.msg
 import rospy
 # from __future__ import print_function
 
@@ -17,7 +17,7 @@ from visualization_msgs.msg import Marker
 import rospy
 import sys
 from std_msgs.msg import String, Float32MultiArray
-from patrol_robot.srv import TaskList
+from mowerbot.srv import TaskList
 from tf import transformations
 
 

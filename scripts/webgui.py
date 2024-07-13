@@ -12,7 +12,7 @@ from geometry_msgs.msg import Twist
 import numpy as np
 import yaml
 
-from patrol_robot.srv import *
+from mowerbot.srv import *
 from std_msgs.msg import Float32MultiArray
 
 from threading import Thread
@@ -88,8 +88,8 @@ class WebUI:
         # self.joystick_w_max = 0.8
 
         with ui.row():
-            ui.label('5G工业巡检机器人UI控制界面')
-            ui.label('Patrol Robot Web GUI (Powered by NiceGUI)')
+            ui.label('Mowerbot 机器人UI控制界面')
+            ui.label('Mowerbot Web GUI (Powered by NiceGUI)')
 
         with ui.row():
             with ui.card().classes('w-[52rem] h-[52rem] bg-orange-3 border'):
@@ -183,7 +183,7 @@ class WebUI:
         self.thr = Thread(target=self.robot_pose_update)
         self.thr.start()
 
-        ui.run(title='Patrol Robot Web GUI', reload=False, show=False)
+        ui.run(title='Mowerbot Web GUI', reload=False, show=False)
 
     def __del__(self):
         self.thr.join()

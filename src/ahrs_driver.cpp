@@ -555,9 +555,12 @@ void ahrsBringup::processLoop()   // 数据处理过程
       gps_common::GPSFix gnss_dual_ant_data;
       gnss_dual_ant_data.header.stamp = ros::Time::now();
       gnss_dual_ant_data.header.frame_id = "gnss_dual_ant_link";
-      gnss_dual_ant_data.latitude = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBLat / DEG_TO_RAD; // in deg
-      gnss_dual_ant_data.longitude = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBLon / DEG_TO_RAD; // in deg
+      // gnss_dual_ant_data.latitude = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBLat / DEG_TO_RAD; // in deg
+      // gnss_dual_ant_data.longitude = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBLon / DEG_TO_RAD; // in deg
+      gnss_dual_ant_data.latitude = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBLat; // in deg
+      gnss_dual_ant_data.longitude = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBLon; // in deg
       gnss_dual_ant_data.altitude = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBAlt; // in m
+      // gnss_dual_ant_data.track = GNSS_Dual_Ant_frame_.frame.data.data_pack.RoverRtkPosHeading / DEG_TO_RAD; // in deg
       gnss_dual_ant_data.track = GNSS_Dual_Ant_frame_.frame.data.data_pack.RoverRtkPosHeading / DEG_TO_RAD; // in deg
       gnss_dual_ant_data.status.status = GNSS_Dual_Ant_frame_.frame.data.data_pack.MBfixtype;
 

@@ -29,10 +29,24 @@
   <!--   simple_move_base server -->
   <node pkg="mowerbot" type="simple_move_base_server.py" name="simple_move_base_server" output="screen" />
 
+  <!--   cmd_vel_to_serial -->
+  <node pkg="mowerbot" type="cmd_vel_to_serial.py" name="cmd_vel_to_serial" output="screen" />
+
   <!--   webgui -->
   <node pkg="mowerbot" type="webgui.py" name="webgui" output="screen" />
 
+  <!--   gnss driver -->
+  <node pkg="mowerbot" name="ahrs_driver" type="ahrs_driver" output="screen" >
+    <!-- serial port -->
+    <param name="port"  value="/dev/wheeltec_FDI_IMU_GNSS"/>
+    <!-- baudrate -->
+    <param name="baud"  value="921600"/>
+    <!-- gnss dual ant ros topic-->
+    <!-- MSG_GNSS_DUAL_ANT 0X78 package data -->
+    <param name="gnss_dual_ant_topic_" value="/gnss_dual_ant/fix"/>
+  </node>
+
   <!--   rviz -->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mowerbot)/rviz_cfg/task_nav.rviz"/>
+<!--   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mowerbot)/rviz_cfg/task_nav.rviz"/> -->
 </launch> 
 

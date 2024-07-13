@@ -1,0 +1,10 @@
+#
+map:
+  #ref_lla: [40.0, 117.0, 0.0]
+  ref_lla: [40.0, 117.0, 0.0]
+motor:
+  ser_port: '/dev/ttyUSB0'
+  ser_baudrate: 9600
+  hw_action: 1
+  wheel_dist: 1.0
+  max_vel_cmd: 200.0
