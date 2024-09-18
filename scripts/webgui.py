@@ -29,14 +29,14 @@ class WebUI:
         # load params
         rospack = rospkg.RosPack()
         self.pkg_path = rospack.get_path('mowerbot')+'/'
-        params_filename = self.pkg_path+'param/'+'webgui_params.yaml'
+        params_filename = self.pkg_path+'param/'+'mowerbot_params.yaml'
         with open(params_filename, 'r') as file:
             self.param = yaml.safe_load(file)
 
         self.task_list_file = self.pkg_path + 'traj/traj.csv'
 
         # load map
-        map_yaml_filename = self.pkg_path+'map/'+self.param['map']
+        map_yaml_filename = self.pkg_path+'map/'+self.param['webgui']['map']
         with open(map_yaml_filename, 'r') as file:
             self.map_yaml = yaml.safe_load(file)
         map_pgm_filename = self.pkg_path+'map/'+self.map_yaml['image']
@@ -52,7 +52,7 @@ class WebUI:
         ui.query('body').style(f'background-color: {self.bg_color}')
 
         # self.demo = Demo()
-        self.grid_size = self.param['grid_size']
+        self.grid_size = self.param['webgui']['grid_size']
         self.ii = None
         # add html svg arrow definition to ii_fixed_content
         self.ii_content_arrowdef = '<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">' + \
@@ -82,7 +82,7 @@ class WebUI:
         self.map_mouse_up_pt_m = [0.0, 0.0]
         self.map_mouse_is_down = 0
 
-        self.robot_pose_cur = self.param['robot_pose_init']
+        self.robot_pose_cur = self.param['webgui']['robot_pose_init']
 
         # self.joystick_vx_max = 0.5
         # self.joystick_w_max = 0.8
@@ -98,7 +98,7 @@ class WebUI:
                 with self.sa:
                     # ii = ui.image(self.map_pgm).classes('w-[100rem]')
                     self.ii = ui.interactive_image(self.map_pgm, on_mouse=self.map_mouse_handler, events=['mousedown', 'mouseup', 'mousemove'], \
-                                                   cross=True).classes(f'w-[{self.map_show_size[0]/self.param["map_vis_shrink_factor"]}rem]')
+                                                   cross=True).classes(f'w-[{self.map_show_size[0]/self.param["webgui"]["map_vis_shrink_factor"]}rem]')
                     self.ii.content += self.ii_fixed_content
                     # self.ii.content += '<line x1="50" y1="50" x2="250" y2="50" stroke="red" stroke-width="5" marker-end="url(#arrow)"/>'
                 with ui.row():
@@ -171,7 +171,7 @@ class WebUI:
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
 
         # establish client server communication
-        if self.param['server_connection']:
+        if self.param['webgui']['server_connection']:
             print('starting client')
             rospy.wait_for_service('TaskList')
             print('service connected.')
@@ -183,10 +183,13 @@ class WebUI:
         self.thr = Thread(target=self.robot_pose_update)
         self.thr.start()
 
+        rospy.on_shutdown(self.__del__)
+
         ui.run(title='Mowerbot Web GUI', reload=False, show=False)
 
     def __del__(self):
-        self.thr.join()
+        rospy.logwarn('webgui is shutting down')
+        self.thr.join(1.0)
         pass
 
     def map_mouse_handler(self, e: MouseEventArguments):
@@ -210,8 +213,8 @@ class WebUI:
             self.movebase_input_theta.value = theta
 
             arrow_end_pt_pix = [0.0, 0.0]
-            arrow_end_pt_pix[0] = self.map_mouse_down_pt_pix[0] + math.cos(theta)*self.param['map_arrow_len']/self.map_res
-            arrow_end_pt_pix[1] = self.map_mouse_down_pt_pix[1] - math.sin(theta)*self.param['map_arrow_len']/self.map_res
+            arrow_end_pt_pix[0] = self.map_mouse_down_pt_pix[0] + math.cos(theta)*self.param['webgui']['map_arrow_len']/self.map_res
+            arrow_end_pt_pix[1] = self.map_mouse_down_pt_pix[1] - math.sin(theta)*self.param['webgui']['map_arrow_len']/self.map_res
             self.ii_mouse_arrow_content = f'<line x1="{self.map_mouse_down_pt_pix[0]}" y1="{self.map_mouse_down_pt_pix[1]}" ' + \
                                   f'x2="{arrow_end_pt_pix[0]}" y2="{arrow_end_pt_pix[1]}" ' + \
                                   'stroke="yellow" stroke-width="5" marker-end="url(#arrow)"/>'
@@ -228,8 +231,8 @@ class WebUI:
                 theta = math.atan2(map_mouse_move_pt_m[1] - self.map_mouse_down_pt_m[1], map_mouse_move_pt_m[0] - self.map_mouse_down_pt_m[0])
 
                 arrow_end_pt_pix = [0.0, 0.0]
-                arrow_end_pt_pix[0] = self.map_mouse_down_pt_pix[0] + math.cos(theta) * self.param['map_arrow_len'] / self.map_res
-                arrow_end_pt_pix[1] = self.map_mouse_down_pt_pix[1] - math.sin(theta) * self.param['map_arrow_len'] / self.map_res
+                arrow_end_pt_pix[0] = self.map_mouse_down_pt_pix[0] + math.cos(theta) * self.param['webgui']['map_arrow_len'] / self.map_res
+                arrow_end_pt_pix[1] = self.map_mouse_down_pt_pix[1] - math.sin(theta) * self.param['webgui']['map_arrow_len'] / self.map_res
                 self.ii_mouse_arrow_content = f'<line x1="{self.map_mouse_down_pt_pix[0]}" y1="{self.map_mouse_down_pt_pix[1]}" ' + \
                                       f'x2="{arrow_end_pt_pix[0]}" y2="{arrow_end_pt_pix[1]}" ' + \
                                       'stroke="yellow" stroke-width="5" marker-end="url(#arrow)"/>'
@@ -245,8 +248,8 @@ class WebUI:
 
     def map_center_handler(self):
         # scroll_to sets upper left conner, so minus half of the size of area, e.g. horizontal: 50 rem / 2 * 16
-        self.sa.scroll_to(pixels=self.map_ct_px[0]/self.param['map_vis_shrink_factor']-25*16, axis='horizontal')
-        self.sa.scroll_to(pixels=self.map_ct_px[1]/self.param['map_vis_shrink_factor']-20*16, axis='vertical')
+        self.sa.scroll_to(pixels=self.map_ct_px[0]/self.param['webgui']['map_vis_shrink_factor']-25*16, axis='horizontal')
+        self.sa.scroll_to(pixels=self.map_ct_px[1]/self.param['webgui']['map_vis_shrink_factor']-20*16, axis='vertical')
 
     def map_axis_handler(self):
         if self.map_axis_sw.value:
@@ -349,7 +352,7 @@ class WebUI:
         self.compute_task_content()
         self.map_ii_content_handler()
 
-        if self.param['server_connection']:
+        if self.param['webgui']['server_connection']:
             task_list = np.zeros((5, 10))
             task_list_flatten = task_list.reshape((1, -1))[0]
             task_list_flatten_list = task_list_flatten.tolist()
@@ -362,7 +365,7 @@ class WebUI:
             ui.notify('stop cmd sent')
 
     def task_list_send(self):
-        if self.param['server_connection']:
+        if self.param['webgui']['server_connection']:
             tasks_num = self.task_list.shape[0]
             task_list = np.zeros((tasks_num, 10))
 
@@ -482,9 +485,9 @@ class WebUI:
                 else:
                     circle_color = 'blue'
                 xy_pix = self.transform_map_to_image(task[1:3])
-                self.ii_task_content += f'<circle cx="{xy_pix[0]}" cy="{xy_pix[1]}" r="{15 / self.param["map_vis_shrink_factor"]}"' + \
+                self.ii_task_content += f'<circle cx="{xy_pix[0]}" cy="{xy_pix[1]}" r="{15 / self.param["webgui"]["map_vis_shrink_factor"]}"' + \
                                         f'fill="none" stroke="{circle_color}" stroke-width="4" />'
-                self.ii_task_content += self.compute_arrow_content(task[1:4], 'yellow', self.param['map_arrow_len'])
+                self.ii_task_content += self.compute_arrow_content(task[1:4], 'yellow', self.param['webgui']['map_arrow_len'])
 
                 pre_xy_pix = self.transform_map_to_image(pre_pose[0:2])
                 self.ii_task_content += f'<line x1="{pre_xy_pix[0]}" y1="{pre_xy_pix[1]}" x2="{xy_pix[0]}" y2="{xy_pix[1]}"' + \
@@ -523,8 +526,8 @@ class WebUI:
                     # update drawing
                     x_axis_pose = self.robot_pose_cur
                     y_axis_pose = [self.robot_pose_cur[0], self.robot_pose_cur[1], self.robot_pose_cur[2]+(np.pi/2)]
-                    self.ii_robot_pose_content = self.compute_arrow_content(x_axis_pose, 'red', self.param['map_arrow_len']/2) + \
-                                                 self.compute_arrow_content(y_axis_pose, 'green', self.param['map_arrow_len']/2)
+                    self.ii_robot_pose_content = self.compute_arrow_content(x_axis_pose, 'red', self.param['webgui']['map_arrow_len']/2) + \
+                                                 self.compute_arrow_content(y_axis_pose, 'green', self.param['webgui']['map_arrow_len']/2)
                 except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                     continue
 
@@ -537,5 +540,6 @@ class WebUI:
 # server = line_track_action()
 # rospy.spin()
 webui = WebUI()
+rospy.signal_shutdown('exiting')
 
 

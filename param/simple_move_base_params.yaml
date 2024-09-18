@@ -7,8 +7,8 @@ keyparam:
   cmd_vel_theta_min: 0.1 # min rotational velocity to start the robot rotating
 
 move_base:
-  pose_diff_dist_thr: 0.1 # positional error tolerance for goal position
-  pose_diff_yaw_thr_deg: 5.0 # heading error tolerance for goal position
+  pose_diff_dist_thr: 0.3 # positional error tolerance for goal position
+  pose_diff_yaw_thr_deg: 10.0 # heading error tolerance for goal position
   pose_diff_2d_line_yaw_thr_deg: 10.0 # # heading error tolerance when traveling to the goal position
 
 

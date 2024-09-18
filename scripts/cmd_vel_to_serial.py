@@ -56,16 +56,34 @@ class cmd_vel_sender:
         lw_v = vx - w*(self.wheel_dist/2.0)
         rw_v = vx + w*(self.wheel_dist/2.0)
 
-        lw_cmd = lw_v*(self.max_vel_cmd/0.5)
-        rw_cmd = rw_v*(self.max_vel_cmd/0.5)
+        # lw_cmd = lw_v*(self.max_vel_cmd/0.5)
+        # rw_cmd = rw_v*(self.max_vel_cmd/0.5)
+        lw_cmd = lw_v/0.5*30.0
+        rw_cmd = rw_v/0.5*30.0
+
 
         max_vel = max(abs(lw_cmd), abs(rw_cmd))
         if max_vel>self.max_vel_cmd:
             lw_cmd = lw_cmd*(self.max_vel_cmd/max_vel)
             rw_cmd = rw_cmd*(self.max_vel_cmd/max_vel)
 
-        self.lw_cmd = int(lw_cmd)+1500
-        self.rw_cmd = int(rw_cmd)+1500
+        if abs(lw_cmd)<0.05:
+            self.lw_cmd = 1500
+        else:
+            if lw_cmd>0:
+                self.lw_cmd = 1570+lw_cmd
+            else:
+                self.lw_cmd = 1430+lw_cmd
+        if abs(rw_cmd)<0.05:
+            self.rw_cmd = 1500
+        else:
+            if rw_cmd>0:
+                self.rw_cmd = 1570+rw_cmd
+            else:
+                self.rw_cmd = 1430+rw_cmd
+
+        # self.lw_cmd = int(lw_cmd)+1500
+        # self.rw_cmd = int(rw_cmd)+1500
 
     def send_serial_cmd(self):
         ser_cmd_str = 's%04d%04de' % (self.lw_cmd, self.rw_cmd)

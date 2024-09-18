@@ -57,8 +57,9 @@ class gps_localizer:
     def fdi_gps_cb(self, msg):
         # if gps_src == 1:
         if True:
-            lla = np.array([np.deg2rad(msg.latitude), np.deg2rad(msg.longitude), msg.altitude])
-            track = np.deg2rad(msg.track)
+            # lla = np.array([np.deg2rad(msg.latitude), np.deg2rad(msg.longitude), msg.altitude])
+            lla = np.array([msg.latitude, msg.longitude, msg.altitude])
+            track = -np.deg2rad(msg.track) # the direction of gps angle is opposite of Z axis up, maybe it is NED, not ENU
             theta = track + np.pi / 2.0
             if theta > np.pi:
                 theta = theta - 2.0*np.pi
